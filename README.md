@@ -37,6 +37,6 @@ python3 server.py
 ### 5. run client on any computer
 
 ```bash
-python3 client.py <your alias> qxdbhece6oflxlzdprbp7btmrry2656w4b6dwlnabvu56snnp5gzcxyd.onion
+python3 client.py <your alias> <server .onion address>
 ```
 
