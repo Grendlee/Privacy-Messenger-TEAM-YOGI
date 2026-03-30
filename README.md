@@ -21,13 +21,20 @@ openssl req -x509 -newkey rsa:2048 -keyout private_key.pem -out certificate.pem 
 ```bash
 tor
 ```
-### 3. start the server
+
+### 3. find your .onion address
+
+```bash
+cat /opt/homebrew/var/lib/tor/hidden_service/hostname
+```
+
+### 4. start the server
 
 ```bash
 python3 server.py
 ```
 
-### 4. run client on any computer
+### 5. run client on any computer
 
 ```bash
 python3 client.py <your alias> qxdbhece6oflxlzdprbp7btmrry2656w4b6dwlnabvu56snnp5gzcxyd.onion
