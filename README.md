@@ -22,7 +22,7 @@ openssl req -x509 -newkey rsa:2048 -keyout private_key.pem -out certificate.pem 
 tor
 ```
 
-### 3. find your .onion address
+### 3. find your .onion address. This command may not work directly depending on where/how you installed tor.
 
 ```bash
 cat /opt/homebrew/var/lib/tor/hidden_service/hostname

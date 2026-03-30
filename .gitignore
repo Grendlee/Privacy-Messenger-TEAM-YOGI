@@ -1,0 +1,3 @@
+.private_keys/
+certificate.pem
+private_key.pem
