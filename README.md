@@ -10,33 +10,57 @@ pip install cryptography pysocks
 
 ## How to Run
 
-### 1. generate TLS certificate
+### 1. run Tor
 
-```bash
-openssl req -x509 -newkey rsa:2048 -keyout private_key.pem -out certificate.pem -days 365 -nodes -subj "/CN=localhost"
-```
-
-### 2. run tor with with the default SOCKS proxy on `127.0.0.1:9050`
-
+**Option A — standalone Tor daemon (SOCKS on port 9050)**
 ```bash
 tor
 ```
 
-### 3. find your .onion address. This command may not work directly depending on where/how you installed tor.
+**Option B — Tor Browser (SOCKS on port 9150)**
+
+Just open Tor Browser and leave it running.
+
+### 2. find your .onion address (server machine only)
 
 ```bash
 cat /opt/homebrew/var/lib/tor/hidden_service/hostname
 ```
 
-### 4. start the server
+> This path may differ depending on how/where you installed Tor.
+
+### 3. start the server
+
+TLS certificate and key are generated automatically on first run.
 
 ```bash
 python3 server.py
 ```
 
-### 5. run client on any computer
+### 4. run client on any computer
 
+**Using standalone Tor (port 9050, default):**
 ```bash
 python3 client.py <your alias> <server .onion address>
 ```
 
+**Using Tor Browser (port 9150):**
+
+macOS/Linux:
+```bash
+SOCKS_PORT=9150 python3 client.py <your alias> <server .onion address>
+```
+
+Windows (PowerShell):
+```powershell
+$env:SOCKS_PORT = "9150"
+python client.py <your alias> <server .onion address>
+```
+
+## Running Tests
+
+```bash
+python3 tests.py
+```
+
+Tests spin up their own server instance automatically — no need to start the server manually.

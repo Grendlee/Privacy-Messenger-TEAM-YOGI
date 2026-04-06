@@ -5,13 +5,14 @@ import os
 import atexit
 import socket
 import threading
-
-
 import time
-
 import ssl
-
 import json
+import datetime
+from cryptography import x509
+from cryptography.x509.oid import NameOID
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
 
 
 
@@ -164,15 +165,37 @@ def client_handler(tlsSocket):
             log(f"disconnected: ({alias})")
         tlsSocket.close()
 
+def generate_tls_cert():
+    key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+    name = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, "localhost")])
+    now = datetime.datetime.now(datetime.timezone.utc)
+    cert = (
+        x509.CertificateBuilder()
+        .subject_name(name)
+        .issuer_name(name)
+        .public_key(key.public_key())
+        .serial_number(x509.random_serial_number())
+        .not_valid_before(now)
+        .not_valid_after(now + datetime.timedelta(days=365))
+        .sign(key, hashes.SHA256())
+    )
+    with open(KEY, "wb") as f:
+        f.write(key.private_bytes(serialization.Encoding.PEM, serialization.PrivateFormat.TraditionalOpenSSL, serialization.NoEncryption()))
+    with open(CERTIFICATE, "wb") as f:
+        f.write(cert.public_bytes(serialization.Encoding.PEM))
+ 
+
 def main():
     # get host and port from environment variables or default
     HOST = os.getenv("SERVER_HOST", "")
 
     PORT = int(os.getenv("SERVER_PORT", "8888"))
 
-    # set up TLS context 
-    ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    if not os.path.exists(CERTIFICATE) or not os.path.exists(KEY):
+        generate_tls_cert()
 
+    # set up TLS context
+    ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     ctx.load_cert_chain(CERTIFICATE, KEY)
 
     # create a TCP socket
