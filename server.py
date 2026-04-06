@@ -31,7 +31,7 @@ KEY  = os.path.join(os.path.dirname(__file__), "private_key.pem")
 TESTING_LOG_PATH = None
 TESTING_LOG_FILE = None
 
-TESTING_LOG_PATH = os.getenv("SERVER_TESTING_LOG_PATH")
+TESTING_LOG_PATH = os.getenv("SERVER_LOG_PATH")
 
 # for testing
 if TESTING_LOG_PATH:
@@ -56,7 +56,7 @@ def log(msg):
 
 # runs in a separate thread for each connected client
 # tlsSocket = the client's TLS socket, IP_Address = their IP (not used for privacy)
-def client_handler(tlsSocket, IP_Address):
+def client_handler(tlsSocket):
     alias = None
     try:
         # keep reading messages from this client until they disconnect
@@ -190,8 +190,8 @@ def main():
     # accept new connections forever, each one gets its own thread
     while True:
         tlsSocket, IP_Address = tls_server.accept()
-        log(f"new tls connection from {IP_Address}")
-        threading.Thread(target=client_handler, args=(tlsSocket, IP_Address), daemon=True).start()
+        log("new tls connection (IP not logged)")
+        threading.Thread(target=client_handler, args=(tlsSocket,), daemon=True).start()
 
 if __name__ == "__main__":
     main()
