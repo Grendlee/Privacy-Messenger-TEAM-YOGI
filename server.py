@@ -119,13 +119,14 @@ def client_handler(tlsSocket):
                     from_alias = msg.get("from", "anonymous")
 
                     ciphertext = msg["ciphertext"]
-
+                    signature = msg.get("signature", "")
 
                     # build a new message
                     stripped_msg = json.dumps({
                         "action": "MESSAGE",
                         "from": from_alias,
-                        "ciphertext": ciphertext
+                        "ciphertext": ciphertext,
+                        "signature": signature
                     }).encode() + b"\n"
 
                     #find the recipient's socket connection
@@ -212,7 +213,7 @@ def main():
 
     # accept new connections forever, each one gets its own thread
     while True:
-        tlsSocket, IP_Address = tls_server.accept()
+        tlsSocket, _ = tls_server.accept()
         log("new tls connection (IP not logged)")
         threading.Thread(target=client_handler, args=(tlsSocket,), daemon=True).start()
 

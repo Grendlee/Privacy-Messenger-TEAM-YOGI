@@ -7,8 +7,7 @@ Tests:
 5. Long message test
 6. Same message gives different ciphertexts
 7. Sender only learns public keys from LOOKUP
-8. Replay attack test
-9. Two aliases act independently
+8. Alias independence
 """
 
 import socket

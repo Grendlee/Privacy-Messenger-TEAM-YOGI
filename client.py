@@ -221,12 +221,17 @@ class Client:
             # encrypt the message
             ciphertext = self.encrypt_message(plaintext, keys["x25519"])
 
+            # sign the ciphertext with  Ed25519 identity key
+            signature = self.private_key_ed25519.sign(ciphertext.encode())
+            signature_base64 = base64.b64encode(signature).decode()
+
             #send to server
             self.send_to_server_json({
                 "action": "SEND",
                 "from": self.alias,
                 "to": target_alias,
-                "ciphertext": ciphertext
+                "ciphertext": ciphertext,
+                "signature": signature_base64
             })
 
             response = self.receive_server_json()
@@ -258,11 +263,17 @@ class Client:
                     sender_alias = message["from"]
 
                     try:
+                        # verify the sender's signature with Ed25519 public key
+                        sender_keys = self.key_cache.get(sender_alias)
+                        if sender_keys and message.get("signature"):
+                            sig = base64.b64decode(message["signature"])
+                            sender_keys["ed25519"].verify(sig, message["ciphertext"].encode())
+
                         decrypted_message = self.decrypt_message(message["ciphertext"])
 
                         print(f"\n({sender_alias}): {decrypted_message}")
                     except Exception:
-                        print(f"\n({sender_alias}): #decryption failed#")
+                        print(f"\n({sender_alias}): #decryption or verification failed#")
                     print(f"({self.alias}): ", end="", flush=True)
             except Exception:
                 break
